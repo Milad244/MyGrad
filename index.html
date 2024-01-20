@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<head>
+    <title>MyGrad</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="dist/app.js"></script>
+    <script src="https://kit.fontawesome.com/a2b54467f5.js" crossorigin="anonymous"></script>
+</head>
+<body id="root">
+    <header>
+        <h2>My Grad</h2>
+    </header>
+        <div id="starting-page-container" class="courses-containers no-display">
+            <div class="text-container">
+                <h2>Are you struggling to keep track of your graduation?</h1>
+                <h2>Do you need help remembering what courses you are planning to take?</h2>
+                <h2>Want to keep track of your progress?</h2>
+            </div>
+            <div>
+                <img src="img/grad-pic.jpg" alt="Graduation Picture">
+                <div class="text-overlay">
+                    <h1>Sign up here to make your graduation a reality</h1>
+                    <button id="js-signUp-button">Sign Up</button>
+                </div>
+            </div>
+        </div>
+        <div id="setup-page-container" class="no-display">
+            <div id="js-step-1" class="no-display steps">
+                <h1 class="steps-title">First step</h1>
+                <div class="steps-content">
+                    <p class="input-p">Please input a username:</p>
+                    <input id="js-new-username-input" placeholder="John"><br>
+                    <button id="js-step1-continue">Continue</button>
+                </div>
+            </div>
+            <div class="no-display steps">
+
+            </div>
+        </div>
+        <main id="main-content-container" class="no-display">
+            <nav id="nav-bar">
+                <button id="js-all-courses-button">My Courses</button>
+                <button id="js-active-courses-button">Add Courses</button>
+                <button id="js-finished-courses-button">Add Courses</button>
+            </nav>
+            <div id="all-courses-container" class="courses-containers">
+
+            </div>
+            <div id="active-courses-container" class="courses-containers">
+
+            </div>
+            <div id="finished-courses-container" class="courses-containers">
+
+            </div>
+        </main>
+</body>
+</html>
