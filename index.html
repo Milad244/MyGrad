@@ -23,17 +23,22 @@
                 </div>
             </div>
         </div>
-        <div id="setup-page-container" class="no-display">
-            <div id="js-step-1" class="no-display steps">
+        <div id="setup-page-container">
+            <div id="js-step-1-container" class="no-display steps">
                 <h1 class="steps-title">First step</h1>
                 <div class="steps-content">
                     <p class="input-p">Please input a username:</p>
-                    <input id="js-new-username-input" placeholder="John"><br>
+                    <input id="js-step1-username-input" placeholder="John"><br>
+                    <p id="js-username-error" class="error-p"></p>
+                    <p id="check-same-value" class="no-display"></p>
                     <button id="js-step1-continue">Continue</button>
                 </div>
             </div>
-            <div class="no-display steps">
-
+            <div id="js-step-2-container" class="no-display steps">
+                <h1 class="steps-title">Second step</h1>
+                <div class="steps-content">
+                    <button id="js-step2-continue">Continue</button>
+                </div>
             </div>
         </div>
         <main id="main-content-container" class="no-display">

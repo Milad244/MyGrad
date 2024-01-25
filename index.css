@@ -37,6 +37,11 @@ div{
 img{
     max-width: 100%;
 }
+.error-p{
+    color: red;
+    font-size: 1.3em !important;
+    margin-top: 1px;
+}
 /* Header */
 header{
     background-color: white;
@@ -130,19 +135,23 @@ header h2{
     font-style: italic;
     margin-bottom: 50px;
 }
-#js-step-1 p{
+#js-step-1-container p{
     font-size: 1.75em;
 }
-#js-step-1 input, button{
+#js-step-1-container input, button{
     font-size: 1.5em;
     padding: 5px 10px;
     border: 2px rgb(0, 109, 128) solid;
     border-radius: 10px;
 }
-#js-step-1 button{
+#js-step-1-container button{
     font-size: 1.5em;
     padding: 5px 10px;
     border: 2px rgb(0, 109, 128) solid;
     border-radius: 10px;
     margin-top: 15px;
 }
+.grouped-username-input{
+    text-align: center;
+}
+
