@@ -16,18 +16,23 @@ function DisplayChanges(mode, elements, opacityLevel = 15) {
         }
     });
     elements.forEach(function (_, index) {
-        if (mode === 'display' || mode === 'just-display') {
-            elements[index].classList.remove('no-display');
-            elements[index].setAttribute('style', 'opacity: 100%; pointer-events: all');
+        if (Array.isArray(elements) === true) {
+            if (mode === 'display' || mode === 'just-display') {
+                elements[index].classList.remove('no-display');
+                elements[index].setAttribute('style', 'opacity: 100%; pointer-events: all');
+            }
+            else if (mode === 'no-display') {
+                elements[index].classList.add('no-display');
+            }
+            else if (mode === 'disable') {
+                elements[index].setAttribute('style', `opacity: ${opacityLevel}%; pointer-events: none`);
+            }
+            else if (mode === 'enable') {
+                elements[index].setAttribute('style', 'opacity: 100%; pointer-events: all');
+            }
         }
-        else if (mode === 'no-display') {
-            elements[index].classList.add('no-display');
-        }
-        else if (mode === 'disable') {
-            elements[index].setAttribute('style', `opacity: ${opacityLevel}%; pointer-events: none`);
-        }
-        else if (mode === 'enable') {
-            elements[index].setAttribute('style', 'opacity: 100%; pointer-events: all');
+        else {
+            GiveError('Element is not an array (displayChanges)', 1);
         }
     });
 }
@@ -71,6 +76,20 @@ function usernameCheck(username) {
         };
     }
 }
+function creditChecker(totalCredits, neededCredits) {
+    if (totalCredits < neededCredits) {
+        return {
+            canContinue: false,
+            problemMsg: `You are missing ${neededCredits - totalCredits} credits out of the minimum ${neededCredits} needed to graduate`
+        };
+    }
+    else {
+        return {
+            canContinue: true,
+            problemMsg: ''
+        };
+    }
+}
 var ElementIds;
 (function (ElementIds) {
     ElementIds["startingPageContainer"] = "starting-page-container";
@@ -80,20 +99,42 @@ var ElementIds;
     ElementIds["step1UsernameInput"] = "js-step1-username-input";
     ElementIds["step1UsernameError"] = "js-username-error";
     ElementIds["step2Container"] = "js-step-2-container";
+    ElementIds["step2CourseListContainer"] = "js-course-list-container";
+    ElementIds["step2Continue"] = "js-step2-continue";
+    ElementIds["step2CourseName"] = "js-step2-course-name-input";
+    ElementIds["step2CreditMinus"] = "js-credit-minus";
+    ElementIds["step2CreditCount"] = "js-credit-count";
+    ElementIds["step2CreditAdd"] = "js-credit-add";
+    ElementIds["step2AddCourse"] = "js-add-course";
+    ElementIds["step2CreditError"] = "js-credit-error";
 })(ElementIds || (ElementIds = {}));
 const yourGraduation = {
     username: 'unnamed',
     courses: {},
     'max credits': 48,
-    stage: 'signUp'
+    stage: 'SetUpPart2'
 };
-const yourCourses = yourGraduation.courses;
 var Stages;
 (function (Stages) {
-    Stages["SignUp"] = "signUp";
-    Stages["SetUpPart1"] = "setUpPart1";
-    Stages["SetUpPart2"] = "setUpPart2";
+    Stages["SignUp"] = "SignUp";
+    Stages["SetUpPart1"] = "SetUpPart1";
+    Stages["SetUpPart2"] = "SetUpPart2";
 })(Stages || (Stages = {}));
+const defaultCourses = {
+    'A Language Arts 10': 2,
+    'A second Language Arts 10': 2,
+    'A Language Arts 11': 4,
+    'A Language Arts 12': 4,
+    'A Social Studies 10': 4,
+    'A Social Studies 11 or 12': 4,
+    'A Mathematics 10': 4,
+    'A Mathematics 11 or 12': 4,
+    'A Science 10': 4,
+    'A Science 11 or 12': 4,
+    'Physical and Health Education 10': 4,
+    'Career Life Education': 4,
+    'Career Life Connections': 4,
+};
 function LoadStage() {
     const stage = yourGraduation.stage;
     switch (stage) {
@@ -111,15 +152,12 @@ function LoadStage() {
     }
 }
 function handleSignUp() {
-    const signUpElements = {
-        startingPageContainer: document.getElementById(ElementIds.startingPageContainer),
-        signUpButton: document.getElementById(ElementIds.signUpButton)
-    };
+    const signUpElements = getElementsByIds(['startingPageContainer', 'signUpButton']);
     if (areElementsTruthy(signUpElements)) {
-        DisplayChanges('just-display', [signUpElements.startingPageContainer]);
+        DisplayChanges('just-display', signUpElements.startingPageContainer);
         signUpElements.signUpButton.addEventListener('click', () => {
-            DisplayChanges('no-display', [signUpElements.startingPageContainer]);
-            yourGraduation.stage = 'setUpPart1';
+            DisplayChanges('no-display', signUpElements.startingPageContainer);
+            yourGraduation.stage = 'SetUpPart1';
             LoadStage();
         });
     }
@@ -128,21 +166,16 @@ function handleSignUp() {
     }
 }
 function handleSetUpPart1() {
-    const step1Elements = {
-        step1Container: document.getElementById(ElementIds.step1Container),
-        step1Continue: document.getElementById(ElementIds.step1Continue),
-        step1UsernameInput: document.getElementById(ElementIds.step1UsernameInput),
-        step1UsernameError: document.getElementById(ElementIds.step1UsernameError)
-    };
+    const step1Elements = getElementsByIds(['step1Container', 'step1Continue', 'step1UsernameInput', 'step1UsernameError']);
     if (areElementsTruthy(step1Elements)) {
-        DisplayChanges('just-display', [step1Elements.step1Container]);
+        DisplayChanges('just-display', step1Elements.step1Container);
         step1Elements.step1Continue.addEventListener('click', () => {
             const newUsername = step1Elements.step1UsernameInput.value;
             const usernameCheckReturn = usernameCheck(newUsername);
             if (usernameCheckReturn.isUsernameValid) {
                 yourGraduation.username = newUsername;
-                DisplayChanges('no-display', [step1Elements.step1Container]);
-                yourGraduation.stage = 'setUpPart2';
+                DisplayChanges('no-display', step1Elements.step1Container);
+                yourGraduation.stage = 'SetUpPart2';
                 LoadStage();
             }
             else {
@@ -154,15 +187,66 @@ function handleSetUpPart1() {
         GiveError('Not getting element', 2);
     }
 }
+function getElementsByIds(ids) {
+    if (!Array.isArray(ids)) {
+        ids = [ids];
+    }
+    return ids.reduce((elements, id) => {
+        elements[id] = document.getElementById(ElementIds[id]);
+        return elements;
+    }, {});
+}
+function getTotalCredits() {
+    let totalCredits = 0;
+    Object.keys(yourGraduation.courses).forEach((value) => {
+        const courseCredit = yourGraduation.courses[value];
+        totalCredits += courseCredit;
+    });
+    return totalCredits;
+}
+function deleteCourse(courseNum) {
+    const courses = yourGraduation.courses;
+    let courseName;
+    Object.keys(courses).forEach((value, index) => {
+        const currentCourseName = value;
+        if (courseNum === index) {
+            courseName = currentCourseName;
+            delete yourGraduation.courses[courseName];
+        }
+    });
+    LoadStage();
+}
 function handleSetUpPart2() {
-    const step2Elements = {
-        step2Container: document.getElementById(ElementIds.step2Container),
-    };
+    const step2Elements = getElementsByIds(['step2Container', 'step2CourseListContainer', 'step2Continue', 'step2CourseName', 'step2CreditMinus', 'step2CreditCount', 'step2CreditAdd', 'step2AddCourse', 'step2CreditError']);
     if (areElementsTruthy(step2Elements)) {
-        DisplayChanges('just-display', [step2Elements.step2Container]);
+        DisplayChanges('just-display', step2Elements.step2Container);
+        if (!Object.keys(yourGraduation.courses).length) {
+            yourGraduation.courses = defaultCourses;
+        }
+        step2Elements.step2CourseListContainer.innerHTML = '';
+        Object.keys(yourGraduation.courses).forEach((value, index) => {
+            const courseName = value;
+            const courseCredit = yourGraduation.courses[value];
+            step2Elements.step2CourseListContainer.innerHTML += `<li>${courseName} (${courseCredit}) <i onclick="deleteCourse(${index})" class="fa-solid fa-trash trashDelete"></i></li>`;
+        });
+        let courseCredit = 4;
+        step2Elements.step2CreditCount.innerHTML = `Credit worth: ${courseCredit}`;
+        step2Elements.step2Continue.addEventListener('click', () => {
+            const totalCredits = getTotalCredits();
+            const neededCredits = yourGraduation['max credits'];
+            const creditCheckReturn = creditChecker(totalCredits, neededCredits);
+            if (creditCheckReturn.canContinue === true) {
+                DisplayChanges('no-display', step2Elements.step2Continue);
+                yourGraduation.stage = 'Main';
+                LoadStage();
+            }
+            else {
+                step2Elements.step2CreditError.innerHTML = creditCheckReturn.problemMsg;
+            }
+        });
     }
     else {
-        GiveError('Not getting element', 2);
+        GiveError('Not getting element', 3);
     }
 }
 //# sourceMappingURL=app.js.map

@@ -36,8 +36,41 @@
             </div>
             <div id="js-step-2-container" class="no-display steps">
                 <h1 class="steps-title">Second step</h1>
-                <div class="steps-content">
-                    <button id="js-step2-continue">Continue</button>
+                <div id="step2-content-container">
+                    <div>
+                        <div>
+                            <p class="input-p">Please add a course:</p>
+                            <input id="js-step2-course-name-input" placeholder="Example: Social studies 11"><br>
+                            <p id="js-username-error" class="error-p"></p>
+                            <p id="check-same-value" class="no-display"></p>
+                        </div>
+                        <div>
+                            <div>
+                                <div>
+                                    <i id="js-credit-minus" class="fa-regular fa-square-minus inline-block"></i>
+                                    <p id="js-credit-count" class="inline-block">Credit worth: 4</p>
+                                    <i id="js-credit-add" class="fa-regular fa-square-plus inline-block"></i>
+                                </div>
+                                <button id="js-add-course">Add</button>
+                            </div>
+                            <div>
+                                <div>
+                                    <i id="" class="fa-regular fa-square-minus inline-block"></i>
+                                    <p id="" class="inline-block">Max credits: 48</p>
+                                    <i id="" class="fa-regular fa-square-plus inline-block"></i>
+                                </div>
+                                <button id="">Change</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="js-course-list-container">
+                        <li></li>
+                    </div>
+                    <div>
+                        <p>Your Required Credits To Graduate:<br>48</p>
+                        <button id="js-step2-continue">Continue</button>
+                        <p id="js-credit-error" class="error-p"></p>
+                    </div>
                 </div>
             </div>
         </div>

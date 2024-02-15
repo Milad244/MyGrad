@@ -42,6 +42,14 @@ img{
     font-size: 1.3em !important;
     margin-top: 1px;
 }
+.trashDelete{
+    color: black;
+    font-size: .8em;
+    cursor: pointer;
+}
+.inline-block{
+    display: inline-block;
+}
 /* Header */
 header{
     background-color: white;
@@ -118,7 +126,7 @@ header h2{
         transform: none;
     }
 }
-/* Setup Container */
+/* Setup Part 1*/
 .steps{
     margin-top: 30px;
     text-align: center;
@@ -154,4 +162,33 @@ header h2{
 .grouped-username-input{
     text-align: center;
 }
-
+/* Setup Part 2*/
+#step2-content-container{
+    display: flex;
+    justify-content: space-evenly;
+}
+#step2-content-container > div{
+    width: 20%;
+    min-width: 200px;
+    max-width: 300px;
+    padding: 5px;
+    border: 2px groove black;
+}
+#step2-content-container > div#js-course-list-container{
+    flex: 15%;
+    min-width: 300px;
+    max-width: 8000px;
+    height: 70vh;
+    text-align: center;
+    border: 2px groove black;
+    overflow-y: auto;
+}
+@media (max-width: 775px){
+    
+}
+#js-course-list-container li{
+    list-style: none;
+    font-size: 2em;
+    word-wrap: break-word;
+    color: rgb(83, 28, 185);
+}
