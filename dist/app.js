@@ -56,10 +56,10 @@ function usernameCheck(username) {
         };
     }
     else {
-        const checkSameValueEl = document.getElementById('check-same-value');
-        if (checkSameValueEl) {
-            checkSameValueEl.innerHTML = username;
-            const nameDup = checkSameValueEl.innerHTML;
+        const checkSameValueUsernameEl = document.getElementById('username-invalid-check');
+        if (checkSameValueUsernameEl) {
+            checkSameValueUsernameEl.innerHTML = username;
+            const nameDup = checkSameValueUsernameEl.innerHTML;
             if (username != nameDup) {
                 return {
                     isUsernameValid: false,
@@ -90,6 +90,62 @@ function creditChecker(totalCredits, neededCredits) {
         };
     }
 }
+function addNewCourse(newCourseName, newCourseCredit) {
+    if (newCourseCredit < 0) {
+        return {
+            addedCourse: false,
+            problemMsg: 'Inavlid credits for this course'
+        };
+    }
+    else if (newCourseName.length >= 100) {
+        return {
+            addedCourse: false,
+            problemMsg: 'Course name must have less than 100 characters'
+        };
+    }
+    else if (newCourseName.length <= 3) {
+        return {
+            addedCourse: false,
+            problemMsg: 'Course name must have a minimum of 4 characters'
+        };
+    }
+    else {
+        const checkSameValueUsernameEl = document.getElementById('course-name-invalid-check');
+        if (checkSameValueUsernameEl) {
+            checkSameValueUsernameEl.innerHTML = newCourseName;
+            const nameDup = checkSameValueUsernameEl.innerHTML;
+            if (newCourseName != nameDup) {
+                return {
+                    addedCourse: false,
+                    problemMsg: 'Course name contains an invalid character'
+                };
+            }
+        }
+        else {
+            GiveError('Not getting element', 4);
+        }
+        let sameName = false;
+        Object.keys(yourGraduation.courses).forEach((value) => {
+            const courseName = value;
+            if (courseName === newCourseName) {
+                sameName = true;
+            }
+        });
+        if (sameName) {
+            return {
+                addedCourse: false,
+                problemMsg: 'You already have this course'
+            };
+        }
+        else {
+            yourGraduation.courses[newCourseName] = newCourseCredit;
+            return {
+                addedCourse: true,
+                problemMsg: ''
+            };
+        }
+    }
+}
 var ElementIds;
 (function (ElementIds) {
     ElementIds["startingPageContainer"] = "starting-page-container";
@@ -101,7 +157,8 @@ var ElementIds;
     ElementIds["step2Container"] = "js-step-2-container";
     ElementIds["step2CourseListContainer"] = "js-course-list-container";
     ElementIds["step2Continue"] = "js-step2-continue";
-    ElementIds["step2CourseName"] = "js-step2-course-name-input";
+    ElementIds["step2CourseNameInput"] = "js-step2-course-name-input";
+    ElementIds["step2AddCourseError"] = "js-add-course-error";
     ElementIds["step2CreditMinus"] = "js-credit-minus";
     ElementIds["step2CreditCount"] = "js-credit-count";
     ElementIds["step2CreditAdd"] = "js-credit-add";
@@ -173,6 +230,7 @@ function handleSetUpPart1() {
             const newUsername = step1Elements.step1UsernameInput.value;
             const usernameCheckReturn = usernameCheck(newUsername);
             if (usernameCheckReturn.isUsernameValid) {
+                step1Elements.step1UsernameError.innerHTML = '';
                 yourGraduation.username = newUsername;
                 DisplayChanges('no-display', step1Elements.step1Container);
                 yourGraduation.stage = 'SetUpPart2';
@@ -217,7 +275,7 @@ function deleteCourse(courseNum) {
     LoadStage();
 }
 function handleSetUpPart2() {
-    const step2Elements = getElementsByIds(['step2Container', 'step2CourseListContainer', 'step2Continue', 'step2CourseName', 'step2CreditMinus', 'step2CreditCount', 'step2CreditAdd', 'step2AddCourse', 'step2CreditError']);
+    const step2Elements = getElementsByIds(['step2Container', 'step2CourseListContainer', 'step2Continue', 'step2CourseNameInput', 'step2AddCourseError', 'step2CreditMinus', 'step2CreditCount', 'step2CreditAdd', 'step2AddCourse', 'step2CreditError']);
     if (areElementsTruthy(step2Elements)) {
         DisplayChanges('just-display', step2Elements.step2Container);
         if (!Object.keys(yourGraduation.courses).length) {
@@ -231,11 +289,28 @@ function handleSetUpPart2() {
         });
         let courseCredit = 4;
         step2Elements.step2CreditCount.innerHTML = `Credit worth: ${courseCredit}`;
+        step2Elements.step2CourseNameInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                const newCourseInput = step2Elements.step2CourseNameInput;
+                const newCourseName = newCourseInput.value;
+                newCourseInput.value = '';
+                const newCourseCredit = parseInt(step2Elements.step2CreditCount.innerHTML.replace('Credit worth: ', ''));
+                const addCourseReturn = addNewCourse(newCourseName, newCourseCredit);
+                if (addCourseReturn.addedCourse === true) {
+                    step2Elements.step2AddCourseError.innerHTML = '';
+                    LoadStage();
+                }
+                else {
+                    step2Elements.step2AddCourseError.innerHTML = addCourseReturn.problemMsg;
+                }
+            }
+        });
         step2Elements.step2Continue.addEventListener('click', () => {
             const totalCredits = getTotalCredits();
             const neededCredits = yourGraduation['max credits'];
             const creditCheckReturn = creditChecker(totalCredits, neededCredits);
             if (creditCheckReturn.canContinue === true) {
+                step2Elements.step2CreditError.innerHTML = '';
                 DisplayChanges('no-display', step2Elements.step2Continue);
                 yourGraduation.stage = 'Main';
                 LoadStage();

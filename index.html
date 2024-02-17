@@ -30,7 +30,7 @@
                     <p class="input-p">Please input a username:</p>
                     <input id="js-step1-username-input" placeholder="John"><br>
                     <p id="js-username-error" class="error-p"></p>
-                    <p id="check-same-value" class="no-display"></p>
+                    <p id="username-invalid-check" class="no-display"></p>
                     <button id="js-step1-continue">Continue</button>
                 </div>
             </div>
@@ -41,26 +41,22 @@
                         <div>
                             <p class="input-p">Please add a course:</p>
                             <input id="js-step2-course-name-input" placeholder="Example: Social studies 11"><br>
-                            <p id="js-username-error" class="error-p"></p>
-                            <p id="check-same-value" class="no-display"></p>
+                            <p id="js-add-course-error" class="error-p"></p>
+                            <p id="course-name-invalid-check" class="no-display"></p>
+                            <div>
+                                <i id="js-credit-minus" class="fa-regular fa-square-minus inline-block"></i>
+                                <p id="js-credit-count" class="inline-block"></p>
+                                <i id="js-credit-add" class="fa-regular fa-square-plus inline-block"></i>
+                            </div>
+                            <button id="js-add-course">Add</button>
                         </div>
                         <div>
                             <div>
-                                <div>
-                                    <i id="js-credit-minus" class="fa-regular fa-square-minus inline-block"></i>
-                                    <p id="js-credit-count" class="inline-block">Credit worth: 4</p>
-                                    <i id="js-credit-add" class="fa-regular fa-square-plus inline-block"></i>
-                                </div>
-                                <button id="js-add-course">Add</button>
+                                <i id="" class="fa-regular fa-square-minus inline-block"></i>
+                                <p id="" class="inline-block">Max credits: 48</p>
+                                <i id="" class="fa-regular fa-square-plus inline-block"></i>
                             </div>
-                            <div>
-                                <div>
-                                    <i id="" class="fa-regular fa-square-minus inline-block"></i>
-                                    <p id="" class="inline-block">Max credits: 48</p>
-                                    <i id="" class="fa-regular fa-square-plus inline-block"></i>
-                                </div>
-                                <button id="">Change</button>
-                            </div>
+                            <button id="">Change</button>
                         </div>
                     </div>
                     <div id="js-course-list-container">
