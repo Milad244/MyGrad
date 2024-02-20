@@ -40,38 +40,57 @@ function areElementsTruthy(elements: Record<string, HTMLElement | null>): boolea
     return Object.values(elements).every(Boolean);
 }
 
-// REMEMBER PLEASE TO WRITE LIKE 10 DIFF FUNCTIONS FOR EACH CHECK SO THAT MY CODE DOESN'T MAKE ME ILL LIKE IT DOES CURRENTLY :))
+function checkMinLength(string: string, minLength = 0): boolean{
+    return string.replace(/\s/g, '').length >= minLength;
+}
+function checkMaxLength(string: string, maxLength = Infinity): boolean{
+    return string.length <= maxLength;
+}
+
+function checkInvalid(string: string, checkElement: Element): boolean{
+    checkElement.innerHTML = string;
+    const nameDup = checkElement.innerHTML;
+    return string === nameDup;
+}
+
+function checkStringDuplicate(string: string, list: string[]): boolean{
+    return list.includes(string);
+}
+
+function addEventListenerOnce(element: Element | null, eventType: string, callback: EventListenerOrEventListenerObject): void {
+    if (element) {
+        element.removeEventListener(eventType, callback);
+        element.addEventListener(eventType, callback);
+    }
+}
 
 function usernameCheck(username: string): {isUsernameValid: boolean, problemMsg: string}{
-    if (username.length <= 3 || username.replace(/\s/g, '').length <= 3){
+    if (!checkMinLength(username, 3)){
         return{
             isUsernameValid: false,
-            problemMsg: 'Username must have a minimum of 4 characters'
+            problemMsg: 'Username must have a minimum of 3 characters'
         }
-    } else if(username.length >= 12 || username.replace(/\s/g, '').length >= 12){
+    } else if(!checkMaxLength(username, 12)){
         return{
             isUsernameValid: false,
-            problemMsg: 'Username must have less than 12 characters'
+            problemMsg: 'Username must have no more than 12 characters'
         } 
-    }else{
-        const checkSameValueUsernameEl = document.getElementById('username-invalid-check');
-        if(checkSameValueUsernameEl){
-            checkSameValueUsernameEl.innerHTML = username;
-            const nameDup = checkSameValueUsernameEl.innerHTML;
-            if (username != nameDup){
-                return{
-                    isUsernameValid: false,
-                    problemMsg: 'Username contains an invalid character'
-                }
-            }
-        } else{
-            GiveError('Not getting element', 4);
-        }
-        return{
-            isUsernameValid: true,
-            problemMsg: ''
-        }
     }
+    const checkSameValueUsernameEl = document.getElementById('username-invalid-check');
+    if(checkSameValueUsernameEl){
+        if (!checkInvalid(username, checkSameValueUsernameEl)){
+            return{
+                isUsernameValid: false,
+                problemMsg: 'Username contains an invalid character'
+            }
+        }
+    } else{
+        GiveError('Not getting element', 4);
+    }
+    return{
+        isUsernameValid: true,
+        problemMsg: ''
+    } 
 }
 
 function creditChecker(totalCredits: number, neededCredits: number): {canContinue: boolean, problemMsg: string}{
@@ -92,24 +111,22 @@ function addNewCourse(newCourseName: string, newCourseCredit: number): {addedCou
     if (newCourseCredit < 0){
         return {
             addedCourse: false,
-            problemMsg: 'Inavlid credits for this course'
+            problemMsg: 'Invalid credits for this course'
         }
-    } else if(newCourseName.length >= 100){
+    } else if(!checkMaxLength(newCourseName, 100)){
         return {
             addedCourse: false,
-            problemMsg: 'Course name must have less than 100 characters'
+            problemMsg: 'Course name must not have more than 100 characters'
         }
-    } else if(newCourseName.length <= 3){
+    } else if(!checkMinLength(newCourseName, 3)){
         return {
             addedCourse: false,
-            problemMsg: 'Course name must have a minimum of 4 characters'
+            problemMsg: 'Course name must have a minimum of 3 characters'
         }
     } else{
         const checkSameValueUsernameEl = document.getElementById('course-name-invalid-check');
         if(checkSameValueUsernameEl){
-            checkSameValueUsernameEl.innerHTML = newCourseName;
-            const nameDup = checkSameValueUsernameEl.innerHTML;
-            if (newCourseName != nameDup){
+            if (!checkInvalid(newCourseName, checkSameValueUsernameEl)){
                 return{
                     addedCourse: false,
                     problemMsg: 'Course name contains an invalid character'
@@ -117,15 +134,12 @@ function addNewCourse(newCourseName: string, newCourseCredit: number): {addedCou
             }
         } else{
             GiveError('Not getting element', 4);
-        }
-        let sameName = false;
-        Object.keys(yourGraduation.courses).forEach((value: string) => {
-            const courseName = value;
-            if (courseName === newCourseName){
-                sameName = true
+            return{
+                addedCourse: false,
+                problemMsg: 'Internal error'
             }
-        });
-        if (sameName){
+        }
+        if (checkStringDuplicate(newCourseName, Object.keys(yourGraduation.courses))){
             return{
                 addedCourse: false,
                 problemMsg: 'You already have this course'
@@ -168,6 +182,7 @@ type yourGraduationType = {
     username: string;
     courses: { [key: string]: number};
     'max credits': number;
+    'new course credits': number;
     stage: string;
 }
 const yourGraduation: yourGraduationType = {
@@ -176,6 +191,7 @@ const yourGraduation: yourGraduationType = {
         // 'Example Course': 4,
         // 'Example Course2': 4
     },
+    'new course credits': 4,
     'max credits': 48,
     stage: 'SetUpPart2'
 };
@@ -219,7 +235,7 @@ function LoadStage(): void{
     }
 }
 
-function handleSignUp(){
+function handleSignUp(): void{
     const signUpElements = getElementsByIds(['startingPageContainer', 'signUpButton']);
     if (areElementsTruthy(signUpElements)){
         DisplayChanges('just-display', signUpElements.startingPageContainer!);
@@ -233,7 +249,7 @@ function handleSignUp(){
     }
 }
 
-function handleSetUpPart1(){
+function handleSetUpPart1(): void{
     const step1Elements = getElementsByIds(['step1Container', 'step1Continue', 'step1UsernameInput', 'step1UsernameError']);
     if (areElementsTruthy(step1Elements)){
         DisplayChanges('just-display', step1Elements.step1Container!);
@@ -287,21 +303,24 @@ function deleteCourse(courseNum: number): void{
     LoadStage();
 }
 
-function handleSetUpPart2(){
+function addNewCourseCredit(): void{
+    yourGraduation['new course credits'] ++;
+    loadSetUpPart2();
+}
+function minusNewCourseCredit(): void{
+    yourGraduation['new course credits'] --;
+    loadSetUpPart2();
+}
+
+function handleSetUpPart2(): void{
     const step2Elements = getElementsByIds(['step2Container', 'step2CourseListContainer', 'step2Continue', 'step2CourseNameInput', 'step2AddCourseError', 'step2CreditMinus', 'step2CreditCount', 'step2CreditAdd', 'step2AddCourse', 'step2CreditError']);
     if (areElementsTruthy(step2Elements)){
         DisplayChanges('just-display', step2Elements.step2Container!);
         if (!Object.keys(yourGraduation.courses).length){
             yourGraduation.courses = defaultCourses;
         }
-        step2Elements.step2CourseListContainer!.innerHTML = '';
-        Object.keys(yourGraduation.courses).forEach((value: string, index: number) => {
-            const courseName = value;
-            const courseCredit = yourGraduation.courses[value];
-            step2Elements.step2CourseListContainer!.innerHTML += `<li>${courseName} (${courseCredit}) <i onclick="deleteCourse(${index})" class="fa-solid fa-trash trashDelete"></i></li>`;
-        });
-        let courseCredit = 4;
-        step2Elements.step2CreditCount!.innerHTML = `Credit worth: ${courseCredit}`;
+        addEventListenerOnce(step2Elements.step2CreditAdd, 'click', addNewCourseCredit);
+        addEventListenerOnce(step2Elements.step2CreditMinus, 'click', minusNewCourseCredit);
         step2Elements.step2CourseNameInput!.addEventListener('keypress', (event) => {
             if (event.key === 'Enter') {
                 const newCourseInput = (step2Elements.step2CourseNameInput! as HTMLInputElement);
@@ -311,13 +330,13 @@ function handleSetUpPart2(){
                 const addCourseReturn = addNewCourse(newCourseName, newCourseCredit);
                 if (addCourseReturn.addedCourse === true){
                     step2Elements.step2AddCourseError!.innerHTML = '';
-                    LoadStage();
+                    loadSetUpPart2();
                 } else{
                     step2Elements.step2AddCourseError!.innerHTML = addCourseReturn.problemMsg;
                 }
             }
         })
-        step2Elements.step2Continue!.addEventListener('click', () => {
+        addEventListenerOnce(step2Elements.step2Continue, "click", () => {
             const totalCredits = getTotalCredits();
             const neededCredits = yourGraduation['max credits'];
             const creditCheckReturn = creditChecker(totalCredits, neededCredits);
@@ -329,7 +348,23 @@ function handleSetUpPart2(){
             } else{
                 step2Elements.step2CreditError!.innerHTML = creditCheckReturn.problemMsg;
             }
-        })
+        });
+        loadSetUpPart2();          
+    } else{
+        GiveError('Not getting element', 3);
+    }
+}
+
+function loadSetUpPart2(): void{
+    const step2Elements = getElementsByIds(['step2Container', 'step2CourseListContainer', 'step2Continue', 'step2CourseNameInput', 'step2AddCourseError', 'step2CreditMinus', 'step2CreditCount', 'step2CreditAdd', 'step2AddCourse', 'step2CreditError']);
+    if (areElementsTruthy(step2Elements)){
+        step2Elements.step2CourseListContainer!.innerHTML = '';
+        Object.keys(yourGraduation.courses).forEach((value: string, index: number) => {
+            const courseName = value;
+            const courseCredit = yourGraduation.courses[value];
+            step2Elements.step2CourseListContainer!.innerHTML += `<li>${courseName} (${courseCredit}) <i onclick="deleteCourse(${index})" class="fa-solid fa-trash trashDelete"></i></li>`;
+        });
+        step2Elements.step2CreditCount!.innerHTML = `Credit worth: ${yourGraduation['new course credits']}`;      
     } else{
         GiveError('Not getting element', 3);
     }
