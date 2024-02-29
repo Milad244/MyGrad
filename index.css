@@ -61,16 +61,6 @@ header h2{
     margin: auto;
     font-size: 3em;
 }
-/* Main containers */
-#main-content-container{
-    display: flex;
-}
-/* Nav */
-#nav-bar{
-    display: flex;
-    flex-direction: column;
-    width: 10%;
-}
 /* Main content */
 .courses-containers{
     display: flex;
@@ -191,4 +181,23 @@ header h2{
     font-size: 2em;
     word-wrap: break-word;
     color: rgb(83, 28, 185);
+}
+/* Main */
+#main-nav-bar{
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+}
+@media (max-width: 800px){
+    #main-nav-bar{
+        flex-direction: row;
+        justify-content: space-evenly;
+        width: 100%;
+    }
+}
+#js-main-content-container{
+    display: flex;
+}
+.main-course-containers{
+    display: flex;
 }
