@@ -186,18 +186,118 @@ header h2{
 #main-nav-bar{
     display: flex;
     flex-direction: column;
-    width: 150px;
+    max-width: 140px;
+}
+#main-nav-bar{
+    width: 100%;
 }
 @media (max-width: 800px){
     #main-nav-bar{
         flex-direction: row;
         justify-content: space-evenly;
         width: 100%;
+        height: 100px;
+        border: 2px yellow solid;
+    }
+    #js-main-content-container{
+        flex-direction: column;
     }
 }
+
 #js-main-content-container{
     display: flex;
+    flex-direction: row;
 }
+
+#course-content-container{
+    margin-left: 50px;
+}
+
+#js-main-course-header{
+    text-align: center;
+    margin-top: 15px;
+    font-size: 2.5em;
+}
+
 .main-course-containers{
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 50px;
 }
+
+.main-course-containers div{
+    
+}
+.course-container{
+    position: relative;
+    border: rgb(116, 17, 136) 3px solid;
+    width: 250px;
+    height: 250px;
+    padding: 25px;
+    text-align: center;
+}
+.add-course-container{
+    position: relative;
+    border: rgb(116, 17, 136) 3px solid;
+    width: 250px;
+    height: 250px;
+    padding: 25px;
+    text-align: center;
+}
+.move-icon{
+    font-size: 2em;
+    color: rgb(80, 63, 73);
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    cursor: pointer;
+}
+.course-options{
+    font-size: 2em;
+    color: rgb(238, 35, 153);
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+}
+.course-options:hover{
+    
+}
+
+.finished-button{
+    
+}
+
+.main-course-containers h4{
+    font-size: 1.5em;
+}
+
+
+.course-menu {
+    display: none;
+    position: absolute;
+    border: rgb(0, 0, 0) 3px solid;
+    background-color: white;
+    width: 200px;
+    height: 200px;
+    padding: 20px;
+    top: -10px;
+    right: -256px;
+    text-align: center;
+    z-index: 1;
+    cursor: default;
+}
+.course-menu button{
+    padding: 10px;
+    font-size: 0.5em;
+}
+.course-options:hover > .course-menu{
+    display: block;
+}
+.course-menu:hover{
+    display: block;
+}
+
+
