@@ -38,7 +38,7 @@ img{
     max-width: 100%;
 }
 .error-p{
-    color: red;
+    color: rgb(219, 0, 0);
     font-size: 1.3em !important;
     margin-top: 1px;
 }
@@ -227,9 +227,6 @@ header h2{
     margin-top: 50px;
 }
 
-.main-course-containers div{
-    
-}
 .course-container{
     position: relative;
     border: rgb(116, 17, 136) 3px solid;
@@ -262,18 +259,16 @@ header h2{
     right: 10px;
     cursor: pointer;
 }
-.course-options:hover{
-    
-}
 
-.finished-button{
-    
+.square-add-button{
+    font-size: 10em;
+    color: rgb(119, 5, 71);
+    cursor: pointer;
 }
 
 .main-course-containers h4{
     font-size: 1.5em;
 }
-
 
 .course-menu {
     display: none;
@@ -298,6 +293,14 @@ header h2{
 }
 .course-menu:hover{
     display: block;
+}
+
+.main-power-box{
+    position: absolute;
+    border: black solid 3px;
+    width: 50%;
+    height: 500px;
+    opacity: 100%;
 }
 
 
