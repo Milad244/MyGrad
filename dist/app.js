@@ -208,6 +208,10 @@ function saveCookies() {
     localStorage.setItem('yourGraduation', JSON.stringify(yourGraduation));
     console.log(yourGraduation);
 }
+function deleteAll() {
+    localStorage.removeItem('yourGraduation');
+    window.location.reload();
+}
 const yourGraduation = JSON.parse(localStorage.getItem('yourGraduation')) || {
     username: 'unnamed',
     courses: {},

@@ -209,12 +209,17 @@ function getMainElements(){
     'MainActiveCoursesContainer', 'MainInactiveCoursesContainer','MainFinishedCoursesContainer', 'MainCourseHeader']);
 }
 
-// General Variables
-
 function saveCookies():void {
     localStorage.setItem('yourGraduation', JSON.stringify(yourGraduation));
     console.log(yourGraduation);
 }
+
+function deleteAll(): void{
+    localStorage.removeItem('yourGraduation');
+    window.location.reload();
+}
+
+// General Variables
 
 type yourGraduationType = {
     username: string;
