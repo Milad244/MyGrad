@@ -228,16 +228,7 @@ type yourGraduationType = {
     mainMode: 'All courses' | 'Active courses' | 'Inactive courses' | 'Finished courses' | 'Progress courses';
 }
 
-// const yourGraduation: yourGraduationType = JSON.parse(localStorage.getItem('yourGraduation')!) || {
-//     username: 'unnamed',
-//     courses: {},
-//     'needed credits': 48,
-//     'new course credits': 4,
-//     stage: 'SignUp',
-//     mainMode: 'All courses',
-// };
-
-const yourGraduation: yourGraduationType = {
+const yourGraduation: yourGraduationType = JSON.parse(localStorage.getItem('yourGraduation')!) || {
     username: 'unnamed',
     courses: {},
     'needed credits': 48,
@@ -245,6 +236,15 @@ const yourGraduation: yourGraduationType = {
     stage: 'SignUp',
     mainMode: 'All courses',
 };
+
+// const yourGraduation: yourGraduationType = {
+//     username: 'unnamed',
+//     courses: {},
+//     'needed credits': 48,
+//     'new course credits': 4,
+//     stage: 'SignUp',
+//     mainMode: 'All courses',
+// };
 
 enum Stages {
     SignUp = 'SignUp',
