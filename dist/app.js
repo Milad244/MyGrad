@@ -208,7 +208,7 @@ function saveCookies() {
     localStorage.setItem('yourGraduation', JSON.stringify(yourGraduation));
     console.log(yourGraduation);
 }
-const yourGraduation = {
+const yourGraduation = JSON.parse(localStorage.getItem('yourGraduation')) || {
     username: 'unnamed',
     courses: {},
     'needed credits': 48,
