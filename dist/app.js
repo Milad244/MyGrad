@@ -11,7 +11,7 @@ function DisplayChanges(mode, elements, opacityLevel = 15) {
         if (mode === 'display') {
             divElement[index].setAttribute('style', `opacity: ${opacityLevel}%; pointer-events: none`);
         }
-        else if (mode === 'no-display') {
+        else if (mode === 'no-display' || mode === 'display-all') {
             divElement[index].setAttribute('style', 'opacity: 100%; pointer-events: all');
         }
     });
@@ -106,7 +106,7 @@ function creditChecker(totalCredits, neededCredits) {
         };
     }
 }
-function addNewCourse(newCourseName, newCourseCredit) {
+function addNewCourse(newCourseName, newCourseCredit, newCourseType = 'inactive') {
     if (newCourseCredit < 0) {
         return {
             addedCourse: false,
@@ -142,14 +142,15 @@ function addNewCourse(newCourseName, newCourseCredit) {
                 problemMsg: 'Internal error'
             };
         }
-        if (checkStringDuplicate(newCourseName, Object.keys(yourGraduation.courses)) || checkStringDuplicate(newCourseName, Object.keys(yourGraduation['finished courses']))) {
+        if (checkStringDuplicate(newCourseName, Object.keys(yourGraduation.courses))) {
             return {
                 addedCourse: false,
                 problemMsg: 'You already have this course'
             };
         }
         else {
-            yourGraduation.courses[newCourseName] = newCourseCredit;
+            yourGraduation.courses[newCourseName] = { creditValue: newCourseCredit, courseType: newCourseType };
+            saveCookies();
             return {
                 addedCourse: true,
                 problemMsg: ''
@@ -181,9 +182,11 @@ var ElementIds;
     ElementIds["MainContainer"] = "js-main-content-container";
     ElementIds["MainAllCoursesButton"] = "js-all-courses-button";
     ElementIds["MainActiveCoursesButton"] = "js-active-courses-button";
+    ElementIds["MainInactiveCoursesButton"] = "js-inactive-courses-button";
     ElementIds["MainFinishedCoursesButton"] = "js-finished-courses-button";
     ElementIds["MainAllCoursesContainer"] = "js-all-courses-container";
     ElementIds["MainActiveCoursesContainer"] = "js-active-courses-container";
+    ElementIds["MainInactiveCoursesContainer"] = "js-inactive-courses-container";
     ElementIds["MainFinishedCoursesContainer"] = "js-finished-courses-container";
     ElementIds["MainCourseHeader"] = "js-main-course-header";
 })(ElementIds || (ElementIds = {}));
@@ -198,16 +201,19 @@ function getstep2Elements() {
         'step2CreditAdd', 'step2AddCourse', 'step2CreditError', 'step2TotalCreditMinus', 'step2TotalCreditCount', 'step2TotalCreditAdd']);
 }
 function getMainElements() {
-    return getElementsByIds(['MainContainer', 'MainAllCoursesButton', 'MainActiveCoursesButton', 'MainFinishedCoursesButton', 'MainAllCoursesContainer', 'MainActiveCoursesContainer',
-        'MainFinishedCoursesContainer', 'MainCourseHeader']);
+    return getElementsByIds(['MainContainer', 'MainAllCoursesButton', 'MainActiveCoursesButton', 'MainInactiveCoursesButton', 'MainFinishedCoursesButton', 'MainAllCoursesContainer',
+        'MainActiveCoursesContainer', 'MainInactiveCoursesContainer', 'MainFinishedCoursesContainer', 'MainCourseHeader']);
+}
+function saveCookies() {
+    localStorage.setItem('yourGraduation', JSON.stringify(yourGraduation));
+    console.log(yourGraduation);
 }
 const yourGraduation = {
     username: 'unnamed',
     courses: {},
-    'finished courses': {},
     'needed credits': 48,
     'new course credits': 4,
-    stage: 'SetUpPart2',
+    stage: 'SignUp',
     mainMode: 'All courses',
 };
 var Stages;
@@ -217,20 +223,23 @@ var Stages;
     Stages["SetUpPart2"] = "SetUpPart2";
     Stages["Main"] = "Main";
 })(Stages || (Stages = {}));
+function makeCourseValue(credit, type = 'inactive') {
+    return { creditValue: credit, courseType: type };
+}
 const defaultCourses = {
-    'A Language Arts 10': 2,
-    'A second Language Arts 10': 2,
-    'A Language Arts 11': 4,
-    'A Language Arts 12': 4,
-    'A Social Studies 10': 4,
-    'A Social Studies 11 or 12': 4,
-    'A Mathematics 10': 4,
-    'A Mathematics 11 or 12': 4,
-    'A Science 10': 4,
-    'A Science 11 or 12': 4,
-    'Physical and Health Education 10': 4,
-    'Career Life Education': 4,
-    'Career Life Connections': 4,
+    'A Language Arts 10': makeCourseValue(2),
+    'A second Language Arts 10': makeCourseValue(2),
+    'A Language Arts 11': makeCourseValue(4),
+    'A Language Arts 12': makeCourseValue(4),
+    'A Social Studies 10': makeCourseValue(4),
+    'A Social Studies 11 or 12': makeCourseValue(4),
+    'A Mathematics 10': makeCourseValue(4),
+    'A Mathematics 11 or 12': makeCourseValue(4),
+    'A Science 10': makeCourseValue(4),
+    'A Science 11 or 12': makeCourseValue(4),
+    'Physical and Health Education 10': makeCourseValue(4),
+    'Career Life Education': makeCourseValue(4),
+    'Career Life Connections': makeCourseValue(4),
 };
 function LoadStage() {
     const stage = yourGraduation.stage;
@@ -263,7 +272,7 @@ function getElementsByIds(ids) {
 function getTotalCredits() {
     let totalCredits = 0;
     Object.keys(yourGraduation.courses).forEach((value) => {
-        const courseCredit = yourGraduation.courses[value];
+        const courseCredit = yourGraduation.courses[value].creditValue;
         totalCredits += courseCredit;
     });
     return totalCredits;
@@ -275,6 +284,7 @@ function handleSignUp() {
         signUpElements.signUpButton.addEventListener('click', () => {
             DisplayChanges('no-display', signUpElements.startingPageContainer);
             yourGraduation.stage = 'SetUpPart1';
+            saveCookies();
             LoadStage();
         });
     }
@@ -292,8 +302,10 @@ function handleSetUpPart1() {
             if (usernameCheckReturn.isUsernameValid) {
                 step1Elements.step1UsernameError.innerHTML = '';
                 yourGraduation.username = newUsername;
+                saveCookies();
                 DisplayChanges('no-display', step1Elements.step1Container);
                 yourGraduation.stage = 'SetUpPart2';
+                saveCookies();
                 LoadStage();
             }
             else {
@@ -311,21 +323,26 @@ function handleSetUpPart2() {
         DisplayChanges('just-display', step2Elements.step2Container);
         if (!Object.keys(yourGraduation.courses).length) {
             yourGraduation.courses = defaultCourses;
+            saveCookies();
         }
         step2Elements.step2CreditAdd.addEventListener('click', () => {
             yourGraduation['new course credits']++;
+            saveCookies();
             loadSetUpPart2();
         });
         step2Elements.step2CreditMinus.addEventListener('click', () => {
             yourGraduation['new course credits']--;
+            saveCookies();
             loadSetUpPart2();
         });
         step2Elements.step2TotalCreditMinus.addEventListener('click', () => {
             yourGraduation['needed credits']--;
+            saveCookies();
             loadSetUpPart2();
         });
         step2Elements.step2TotalCreditAdd.addEventListener('click', () => {
             yourGraduation['needed credits']++;
+            saveCookies();
             loadSetUpPart2();
         });
         const addCourseFunc = () => {
@@ -358,6 +375,7 @@ function handleSetUpPart2() {
                 step2Elements.step2CreditError.innerHTML = '';
                 DisplayChanges('no-display', step2Elements.step2Container);
                 yourGraduation.stage = 'Main';
+                saveCookies();
                 LoadStage();
             }
             else {
@@ -376,8 +394,8 @@ function loadSetUpPart2() {
         step2Elements.step2CourseListContainer.innerHTML = '';
         Object.keys(yourGraduation.courses).forEach((value, index) => {
             const courseName = value;
-            const courseCredit = yourGraduation.courses[value];
-            step2Elements.step2CourseListContainer.innerHTML += `<li>${courseName} (${courseCredit}) <i onclick="deleteCourse(${index}, 'active')" class="fa-solid fa-trash trashDelete"></i></li>`;
+            const courseCredit = yourGraduation.courses[value].creditValue;
+            step2Elements.step2CourseListContainer.innerHTML += `<li>${courseName} (${courseCredit}) <i onclick="deleteCourse(${index})" class="fa-solid fa-trash trashDelete"></i></li>`;
         });
         step2Elements.step2CreditCount.innerHTML = `Credit worth: ${yourGraduation['new course credits']}`;
         step2Elements.step2TotalCreditCount.innerHTML = `Needed Credits: ${yourGraduation['needed credits']}`;
@@ -395,6 +413,9 @@ function handleMain() {
         });
         mainElements.MainActiveCoursesButton.addEventListener('click', () => {
             loadCourses('Active courses');
+        });
+        mainElements.MainInactiveCoursesButton.addEventListener('click', () => {
+            loadCourses('Inactive courses');
         });
         mainElements.MainFinishedCoursesButton.addEventListener('click', () => {
             loadCourses('Finished courses');
@@ -418,31 +439,50 @@ function activeCourseHTML(courseName, courseCredit, courseIndex) {
     return `<div class="course-container"> <i class="fa-solid fa-grip move-icon"></i> <i class="fa-solid fa-ellipsis-vertical course-options">
     <div class="course-menu"> <button onclick="editCourseName(${courseIndex})">Edit course name</button>
     <button onclick="editCourseCredit(${courseIndex})">Edit course credit</button>
-    <button onclick="finishCourse(${courseIndex})">Mark course as finished</button>
-    <button onclick="deleteCourse(${courseIndex}, 'active')">Delete this course</button> </div></i>
+    <button onclick="changeCourseType(${courseIndex}, 'inactive')">Mark course as inactive</button>
+    <button onclick="changeCourseType(${courseIndex}, 'finished')">Mark course as finished</button>
+    <button onclick="deleteCourse(${courseIndex})">Delete this course</button> </div></i>
     <h4>${courseName}</h4> <br> <h4>Credit value: ${courseCredit}</h4> <br> <h4>Active Course</h4> </div>`;
+}
+function inactiveCourseHTML(courseName, courseCredit, courseIndex) {
+    return `<div class="course-container"> <i class="fa-solid fa-grip move-icon"></i> <i class="fa-solid fa-ellipsis-vertical course-options">
+    <div class="course-menu"> <button onclick="editCourseName(${courseIndex})">Edit course name</button>
+    <button onclick="editCourseCredit(${courseIndex})">Edit course credit</button>
+    <button onclick="changeCourseType(${courseIndex}, 'active')">Mark course as active</button>
+    <button onclick="changeCourseType(${courseIndex}, 'finished')">Mark course as finished</button>
+    <button onclick="deleteCourse(${courseIndex})">Delete this course</button> </div></i>
+    <h4>${courseName}</h4> <br> <h4>Credit value: ${courseCredit}</h4> <br> <h4>Inactive Course</h4> </div>`;
 }
 function finishedCourseHTML(courseName, courseCredit, courseIndex) {
     return `<div class="course-container"> <i class="fa-solid fa-grip move-icon"></i> <i class="fa-solid fa-ellipsis-vertical course-options">
-    <div class="course-menu"> <button onclick="renewCourse(${courseIndex})">Mark course as active</button>
-    <button onclick="deleteCourse(${courseIndex}, 'finished')">Delete this course</button> </div></i>
+    <div class="course-menu"> <button onclick="editCourseName(${courseIndex})">Edit course name</button>
+    <button onclick="editCourseCredit(${courseIndex})">Edit course credit</button>
+    <button onclick="changeCourseType(${courseIndex}, 'active')">Mark course as active</button>
+    <button onclick="changeCourseType(${courseIndex}, 'inactive')">Mark course as inactive</button>
+    <button onclick="deleteCourse(${courseIndex})">Delete this course</button> </div></i>
     <h4>${courseName}</h4> <br> <h4>Credit value: ${courseCredit}</h4> <br> <h4>Finished Course</h4> </div>`;
 }
 function addCourseHTML() {
     return `<div class="add-course-container"> <h4>Add New Course</h4> <br> <i onclick="addCourse();" class="fa-regular fa-square-plus square-add-button"></i> </div>`;
 }
-function finishCourse(courseIndex) {
-    const courseName = Object.keys(yourGraduation.courses)[courseIndex];
-    const courseCredit = yourGraduation.courses[courseName];
-    yourGraduation['finished courses'][courseName] = courseCredit;
-    delete yourGraduation.courses[courseName];
-    loadCourses(yourGraduation.mainMode);
+function editBoxHTML(boxId, editType, courseName, courseCredit) {
+    const closeButtonHTML = `<i class="fa-solid fa-x close-button" onclick="removeBox(${boxId});"></i>`;
+    switch (editType) {
+        case 'editName': return `<div id="${boxId}" class="main-power-box"><h4>Current Course Name: ${courseName}</h4>${closeButtonHTML}</div>`;
+        case 'editCredit': return `<div id="${boxId}" class="main-power-box"><h4>Current Course Credit Value: ${courseCredit}</h4>${closeButtonHTML}</div>`;
+        case 'addNew': return `<div id="${boxId}" class="main-power-box"><h4>New course name:</h4>${closeButtonHTML}</div>`;
+    }
 }
-function renewCourse(courseIndex) {
-    const courseName = Object.keys(yourGraduation['finished courses'])[courseIndex];
-    const courseCredit = yourGraduation['finished courses'][courseName];
-    yourGraduation.courses[courseName] = courseCredit;
-    delete yourGraduation['finished courses'][courseName];
+const removeBox = (boxId) => {
+    const boxElement = boxId;
+    DisplayChanges('display-all', boxElement);
+    boxElement.remove();
+    loadCourses(yourGraduation.mainMode);
+};
+function changeCourseType(courseIndex, newType) {
+    const courseName = Object.keys(yourGraduation.courses)[courseIndex];
+    yourGraduation.courses[courseName].courseType = newType;
+    saveCookies();
     loadCourses(yourGraduation.mainMode);
 }
 function editCourseName(courseIndex) {
@@ -452,20 +492,21 @@ function editCourseName(courseIndex) {
     const MainCoursesContainer = courseElements.MainCoursesContainer;
     const MainCourseHeader = courseElements.MainCourseHeader;
     const boxIdName = 'editCourseNameBox';
-    MainCoursesContainer.innerHTML += `<div id="${boxIdName}" class="main-power-box"><h4>${courseName}</h4></div>`;
+    MainCoursesContainer.innerHTML += editBoxHTML(boxIdName, 'editName', courseName);
     const boxElement = document.getElementById(boxIdName);
-    DisplayChanges('display', [boxElement, MainCourseHeader, MainCoursesContainer, document.getElementById('course-content-container')], 20);
+    DisplayChanges('display', [boxElement, MainCourseHeader, MainCoursesContainer, document.getElementById('course-content-container')], 15);
 }
 function editCourseCredit(courseIndex) {
     cancelMenu();
     const courseName = Object.keys(yourGraduation.courses)[courseIndex];
+    const courseCreditValue = yourGraduation.courses[courseName].creditValue;
     const courseElements = getCourseElements(yourGraduation.mainMode);
     const MainCoursesContainer = courseElements.MainCoursesContainer;
     const MainCourseHeader = courseElements.MainCourseHeader;
     const boxIdName = 'editCourseCreditBox';
-    MainCoursesContainer.innerHTML += `<div id="${boxIdName}" class="main-power-box"><h4>${courseName}</h4></div>`;
+    MainCoursesContainer.innerHTML += editBoxHTML(boxIdName, 'editCredit', undefined, courseCreditValue);
     const boxElement = document.getElementById(boxIdName);
-    DisplayChanges('display', [boxElement, MainCourseHeader, MainCoursesContainer, document.getElementById('course-content-container')], 20);
+    DisplayChanges('display', [boxElement, MainCourseHeader, MainCoursesContainer, document.getElementById('course-content-container')], 15);
 }
 function addCourse() {
     cancelMenu();
@@ -473,32 +514,21 @@ function addCourse() {
     const MainCoursesContainer = courseElements.MainCoursesContainer;
     const MainCourseHeader = courseElements.MainCourseHeader;
     const boxIdName = 'addCourseBox';
-    MainCoursesContainer.innerHTML += `<div id="${boxIdName}" class="main-power-box"><h4>New course name:</h4></div>`;
+    MainCoursesContainer.innerHTML += editBoxHTML(boxIdName, 'addNew');
     const boxElement = document.getElementById(boxIdName);
-    DisplayChanges('display', [boxElement, MainCourseHeader, MainCoursesContainer, document.getElementById('course-content-container')], 20);
+    DisplayChanges('display', [boxElement, MainCourseHeader, MainCoursesContainer, document.getElementById('course-content-container')], 15);
 }
-function deleteCourse(courseNum, courseType) {
+function deleteCourse(courseNum) {
     let courseName;
-    if (courseType === 'active') {
-        const courses = yourGraduation.courses;
-        Object.keys(courses).forEach((value, index) => {
-            const currentCourseName = value;
-            if (courseNum === index) {
-                courseName = currentCourseName;
-                delete courses[courseName];
-            }
-        });
-    }
-    else if (courseType === 'finished') {
-        const courses = yourGraduation['finished courses'];
-        Object.keys(courses).forEach((value, index) => {
-            const currentCourseName = value;
-            if (courseNum === index) {
-                courseName = currentCourseName;
-                delete courses[courseName];
-            }
-        });
-    }
+    const courses = yourGraduation.courses;
+    Object.keys(courses).forEach((value, index) => {
+        const currentCourseName = value;
+        if (courseNum === index) {
+            courseName = currentCourseName;
+            delete courses[courseName];
+            saveCookies();
+        }
+    });
     if (yourGraduation.stage === 'SetUpPart2') {
         loadSetUpPart2();
     }
@@ -531,6 +561,11 @@ function getCourseElements(course) {
                 MainCoursesContainer: mainElements.MainActiveCoursesContainer,
                 MainCourseHeader: mainElements.MainCourseHeader
             };
+        case 'Inactive courses':
+            return {
+                MainCoursesContainer: mainElements.MainInactiveCoursesContainer,
+                MainCourseHeader: mainElements.MainCourseHeader
+            };
         case 'Finished courses':
             return {
                 MainCoursesContainer: mainElements.MainFinishedCoursesContainer,
@@ -553,6 +588,7 @@ function loadCourses(mode) {
     const mainElements = getMainElements();
     DisplayChanges('no-display', mainElements.MainAllCoursesContainer);
     DisplayChanges('no-display', mainElements.MainActiveCoursesContainer);
+    DisplayChanges('no-display', mainElements.MainInactiveCoursesContainer);
     DisplayChanges('no-display', mainElements.MainFinishedCoursesContainer);
     if (mode === 'All courses') {
         const courseElements = getCourseElements('All courses');
@@ -560,17 +596,21 @@ function loadCourses(mode) {
         const MainCourseHeader = courseElements.MainCourseHeader;
         DisplayChanges('just-display', MainCoursesContainer);
         yourGraduation.mainMode = 'All courses';
+        saveCookies();
         MainCoursesContainer.innerHTML = '';
         MainCourseHeader.innerHTML = 'All courses';
         Object.keys(yourGraduation.courses).forEach((value, index) => {
             const courseName = value;
-            const courseCredit = yourGraduation.courses[value];
-            MainCoursesContainer.innerHTML += activeCourseHTML(courseName, courseCredit, index);
-        });
-        Object.keys(yourGraduation["finished courses"]).forEach((value, index) => {
-            const courseName = value;
-            const courseCredit = yourGraduation["finished courses"][value];
-            MainCoursesContainer.innerHTML += finishedCourseHTML(courseName, courseCredit, index);
+            const courseCredit = yourGraduation.courses[courseName].creditValue;
+            if (yourGraduation.courses[courseName].courseType === 'active') {
+                MainCoursesContainer.innerHTML += activeCourseHTML(courseName, courseCredit, index);
+            }
+            else if (yourGraduation.courses[courseName].courseType === 'inactive') {
+                MainCoursesContainer.innerHTML += inactiveCourseHTML(courseName, courseCredit, index);
+            }
+            else if (yourGraduation.courses[courseName].courseType === 'finished') {
+                MainCoursesContainer.innerHTML += finishedCourseHTML(courseName, courseCredit, index);
+            }
         });
         MainCoursesContainer.innerHTML += addCourseHTML();
     }
@@ -580,12 +620,33 @@ function loadCourses(mode) {
         const MainCourseHeader = courseElements.MainCourseHeader;
         DisplayChanges('just-display', MainCoursesContainer);
         yourGraduation.mainMode = 'Active courses';
+        saveCookies();
         MainCoursesContainer.innerHTML = '';
         MainCourseHeader.innerHTML = 'Active courses';
         Object.keys(yourGraduation.courses).forEach((value, index) => {
             const courseName = value;
-            const courseCredit = yourGraduation.courses[value];
-            MainCoursesContainer.innerHTML += activeCourseHTML(courseName, courseCredit, index);
+            if (yourGraduation.courses[courseName].courseType === 'active') {
+                const courseCredit = yourGraduation.courses[courseName].creditValue;
+                MainCoursesContainer.innerHTML += activeCourseHTML(courseName, courseCredit, index);
+            }
+        });
+        MainCoursesContainer.innerHTML += addCourseHTML();
+    }
+    else if (mode === 'Inactive courses') {
+        const courseElements = getCourseElements('Inactive courses');
+        const MainCoursesContainer = courseElements.MainCoursesContainer;
+        const MainCourseHeader = courseElements.MainCourseHeader;
+        DisplayChanges('just-display', MainCoursesContainer);
+        yourGraduation.mainMode = 'Inactive courses';
+        saveCookies();
+        MainCoursesContainer.innerHTML = '';
+        MainCourseHeader.innerHTML = 'Inactive courses';
+        Object.keys(yourGraduation.courses).forEach((value, index) => {
+            const courseName = value;
+            if (yourGraduation.courses[courseName].courseType === 'inactive') {
+                const courseCredit = yourGraduation.courses[courseName].creditValue;
+                MainCoursesContainer.innerHTML += inactiveCourseHTML(courseName, courseCredit, index);
+            }
         });
         MainCoursesContainer.innerHTML += addCourseHTML();
     }
@@ -595,14 +656,15 @@ function loadCourses(mode) {
         const MainCourseHeader = courseElements.MainCourseHeader;
         DisplayChanges('just-display', MainCoursesContainer);
         yourGraduation.mainMode = 'Finished courses';
-        let boxNumber = 0;
+        saveCookies();
         MainCoursesContainer.innerHTML = '';
         MainCourseHeader.innerHTML = 'Finished courses';
-        Object.keys(yourGraduation["finished courses"]).forEach((value, index) => {
+        Object.keys(yourGraduation.courses).forEach((value, index) => {
             const courseName = value;
-            const courseCredit = yourGraduation["finished courses"][value];
-            boxNumber++;
-            MainCoursesContainer.innerHTML += finishedCourseHTML(courseName, courseCredit, index);
+            if (yourGraduation.courses[courseName].courseType === 'finished') {
+                const courseCredit = yourGraduation.courses[courseName].creditValue;
+                MainCoursesContainer.innerHTML += finishedCourseHTML(courseName, courseCredit, index);
+            }
         });
     }
     else if (mode === 'Progress courses') {
